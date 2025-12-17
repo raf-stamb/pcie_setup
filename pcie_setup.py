@@ -201,9 +201,9 @@ def check_dev_id_format(id: str):
 		print("dot error")
 		return 1
 	try:
-		int(id[0:1])
-		int(id[3:4])
-		int(id[6])
+		int(id[0:1], 16)
+		int(id[3:4], 16)
+		int(id[6], 16)
 	except ValueError:
 		print("ValueError")
 		return 1
