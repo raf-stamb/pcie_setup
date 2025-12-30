@@ -467,7 +467,33 @@ def fill_up_regs_avail(id: str):
 		add_reg(dict, get_next_index(), conf_msix_msg_ctrl()	,1, 0)
 		add_reg(dict, get_next_index(), conf_msix_tbl_offset()	,0, 1)
 		add_reg(dict, get_next_index(), conf_msix_pba_offset()	,0, 1)
+	if aer_discovered(id):
+		add_reg(dict, get_next_index(), conf_aer_cap_reg(), 0, 1)
+		add_reg(dict, get_next_index(), conf_aer_ucor_err_status_reg(), 1, 1)
+		add_reg(dict, get_next_index(), conf_aer_ucor_err_mask_reg(), 1, 1)
+		add_reg(dict, get_next_index(), conf_aer_ucor_err_severity_reg(), 1, 1)
+		add_reg(dict, get_next_index(), conf_aer_cor_err_status_reg(), 1, 1)
+		add_reg(dict, get_next_index(), conf_aer_cor_err_mask_reg(), 1, 1)
+		add_reg(dict, get_next_index(), conf_aer_ctrl_reg(), 1, 1)
+		add_reg(dict, get_next_index(), conf_hdr_log0_reg(), 0, 1)
+		add_reg(dict, get_next_index(), conf_hdr_log1_reg(), 0, 1)
+		add_reg(dict, get_next_index(), conf_hdr_log2_reg(), 0, 1)
+		add_reg(dict, get_next_index(), conf_hdr_log3_reg(), 0, 1)
+		add_reg(dict, get_next_index(), conf_root_err_cmd_reg(), 1, 1)
+		add_reg(dict, get_next_index(), conf_root_err_status_reg(), 1, 1)
+		add_reg(dict, get_next_index(), conf_err_src_id_reg(), 0, 1)
+		add_reg(dict, get_next_index(), conf_tlp_prefix_log0_reg_reg(), 0, 1)
+		add_reg(dict, get_next_index(), conf_tlp_prefix_log1_reg_reg(), 0, 1)
+		add_reg(dict, get_next_index(), conf_tlp_prefix_log2_reg_reg(), 0, 1)
+		add_reg(dict, get_next_index(), conf_tlp_prefix_log3_reg_reg(), 0, 1)
 	return dict
+
+def aer_discovered(id: str):
+	_str = term_dev_id_cmd(id, "lspci -s " + id + " -vv | grep -E 'Capabilities: \\[.*\\] Advanced Error Reporting' -o", 0)
+	if "Advanced Error Reporting" in _str:
+		return True
+	else:
+		return False
 
 def msix_discovered(id: str):
 	_str = term_dev_id_cmd(id, "lspci -s " + id + " -vv | grep -E 'Capabilities: \\[.*\\] MSIX' -o", 0)
@@ -783,6 +809,219 @@ def conf_pm_bse_data():
 	_reg.add_field("Bus Power/Clock Control Enable", 1, 0, 0)
 	_reg.add_field("B2/B3 support for D3hot", 1, 0, 0)
 	_reg.add_field("Reserved0", 6, 0, 0)
+	return _reg
+
+def conf_tlp_prefix_log3_reg_reg():
+	_reg = reg.Reg("TLP Prefix Log 3", r.AER_TLP_PREFIX_LOG3)
+	_reg.add_field("Byte 12", 8, 0, 0)
+	_reg.add_field("Byte 13", 8, 0, 0)
+	_reg.add_field("Byte 14", 8, 0, 0)
+	_reg.add_field("Byte 15", 8, 0, 0)
+	return _reg
+
+def conf_tlp_prefix_log2_reg_reg():
+	_reg = reg.Reg("TLP Prefix Log 2", r.AER_TLP_PREFIX_LOG2)
+	_reg.add_field("Byte 8", 8, 0, 0)
+	_reg.add_field("Byte 9", 8, 0, 0)
+	_reg.add_field("Byte 10", 8, 0, 0)
+	_reg.add_field("Byte 11", 8, 0, 0)
+	return _reg
+
+def conf_tlp_prefix_log1_reg_reg():
+	_reg = reg.Reg("TLP Prefix Log 1", r.AER_TLP_PREFIX_LOG1)
+	_reg.add_field("Byte 4", 8, 0, 0)
+	_reg.add_field("Byte 5", 8, 0, 0)
+	_reg.add_field("Byte 6", 8, 0, 0)
+	_reg.add_field("Byte 7", 8, 0, 0)
+	return _reg
+
+def conf_tlp_prefix_log0_reg_reg():
+	_reg = reg.Reg("TLP Prefix Log 0", r.AER_TLP_PREFIX_LOG0)
+	_reg.add_field("Byte 0", 8, 0, 0)
+	_reg.add_field("Byte 1", 8, 0, 0)
+	_reg.add_field("Byte 2", 8, 0, 0)
+	_reg.add_field("Byte 3", 8, 0, 0)
+	return _reg
+
+def conf_err_src_id_reg():
+	_reg = reg.Reg("Error Source Identification", r.AER_ERR_SRC_ID)
+	_reg.add_field("ERR_FATAL/NONFATAL Source Identification", 16, 0, 0)
+	_reg.add_field("ERR_COR Source Identification", 16, 0, 0)
+	return _reg
+
+def conf_root_err_status_reg():
+	_reg = reg.Reg("Root Error Status", r.AER_ROOT_ERR_STATUS)
+	_reg.add_field("Advanced Error Interrupt Message Number", 5, 0, 0)
+	_reg.add_field("Reserved0", 20, 0, 0)
+	_reg.add_field("Fatal Error Messages Received", 1, 0, 1)
+	_reg.add_field("Non-Fatal Error Messages Received", 1, 0, 1)
+	_reg.add_field("First Uncorrectable Fatal", 1, 0, 1)
+	_reg.add_field("Multiple ERR_FATAL/NONFATAL Received", 1, 0, 1)
+	_reg.add_field("ERR_FATAL/NONFATAL Received", 1, 0, 1)
+	_reg.add_field("Multiple ERR_COR Received", 1, 0, 1)
+	_reg.add_field("ERR_COR Received", 1, 0, 1)
+	return _reg
+
+def conf_root_err_cmd_reg():
+	_reg = reg.Reg("Root Error Command", r.AER_ROOT_ERR_CMD)
+	_reg.add_field("Reserved0", 29, 0, 0)
+	_reg.add_field("Fatal Error Reporting Enable", 1, 0, 1)
+	_reg.add_field("Non-Fatal Error Reporting Enable", 1, 0, 1)
+	_reg.add_field("Correctable Error Reporting Enable", 1, 0, 1)
+	return _reg
+
+def conf_hdr_log3_reg():
+	_reg = reg.Reg("Header Log Register 3", r.AER_HDR_LOG3)
+	_reg.add_field("Header Byte 12", 8, 0, 0)
+	_reg.add_field("Header Byte 13", 8, 0, 0)
+	_reg.add_field("Header Byte 14", 8, 0, 0)
+	_reg.add_field("Header Byte 15", 8, 0, 0)
+	return _reg
+
+def conf_hdr_log2_reg():
+	_reg = reg.Reg("Header Log Register 2", r.AER_HDR_LOG2)
+	_reg.add_field("Header Byte 8", 8, 0, 0)
+	_reg.add_field("Header Byte 9", 8, 0, 0)
+	_reg.add_field("Header Byte 10", 8, 0, 0)
+	_reg.add_field("Header Byte 11", 8, 0, 0)
+	return _reg
+
+def conf_hdr_log1_reg():
+	_reg = reg.Reg("Header Log Register 1", r.AER_HDR_LOG1)
+	_reg.add_field("Header Byte 4", 8, 0, 0)
+	_reg.add_field("Header Byte 5", 8, 0, 0)
+	_reg.add_field("Header Byte 6", 8, 0, 0)
+	_reg.add_field("Header Byte 7", 8, 0, 0)
+	return _reg
+
+def conf_hdr_log0_reg():
+	_reg = reg.Reg("Header Log Register 0", r.AER_HDR_LOG0)
+	_reg.add_field("Header Byte 0", 8, 0, 0)
+	_reg.add_field("Header Byte 1", 8, 0, 0)
+	_reg.add_field("Header Byte 2", 8, 0, 0)
+	_reg.add_field("Header Byte 3", 8, 0, 0)
+	return _reg
+
+def conf_aer_ctrl_reg():
+	_reg = reg.Reg("Advanced Error Capabilities and Control", r.AER_CTRL)
+	_reg.add_field("Reserved0", 20, 0, 0)
+	_reg.add_field("TLP Prefix Log Present", 1, 0, 0)
+	_reg.add_field("Multiple Header Recording Enable", 1, 0, 1)
+	_reg.add_field("Multiple Header Recording Capable", 1, 0, 0)
+	_reg.add_field("ECRC Check Enable", 1, 0, 1)
+	_reg.add_field("ECRC Check Capable", 1, 0, 0)
+	_reg.add_field("ECRC Generation Enable", 1, 0, 1)
+	_reg.add_field("ECRC Generation Capable", 1, 0, 0)
+	_reg.add_field("First Error Pointer", 5, 0, 0)
+	return _reg
+
+def conf_aer_cor_err_mask_reg():
+	_reg = reg.Reg("Correctable Error Mask", r.AER_COR_ERR_MASK)
+	_reg.add_field("Reserved0", 16, 0, 0)
+	_reg.add_field("Header Log Overflow Mask", 1, 0, 1)
+	_reg.add_field("Corrected Internal Error Mask", 1, 0, 1)
+	_reg.add_field("Advisory Non-Fatal Error Mask", 1, 0, 1)
+	_reg.add_field("Replay Timer Timeout Mask", 1, 0, 1)
+	_reg.add_field("Reserved1", 3, 0, 0)
+	_reg.add_field("REPLAY_NUM Rollover Mask", 1, 0, 1)
+	_reg.add_field("Bad DLLP Mask", 1, 0, 1)
+	_reg.add_field("Bad TLP Mask", 1, 0, 1)
+	_reg.add_field("Reserved3", 5, 0, 0)
+	_reg.add_field("Receiver Error Mask", 1, 0, 1)
+	return _reg
+
+def conf_aer_cor_err_status_reg():
+	_reg = reg.Reg("Correctable Error Status", r.AER_COR_ERR_STATUS)
+	_reg.add_field("Reserved0", 16, 0, 0)
+	_reg.add_field("Header Log Overflow Status", 1, 0, 1)
+	_reg.add_field("Corrected Internal Error Status", 1, 0, 1)
+	_reg.add_field("Advisory Non-Fatal Error Status", 1, 0, 1)
+	_reg.add_field("Replay Timer Timeout Status", 1, 0, 1)
+	_reg.add_field("Reserved1", 3, 0, 0)
+	_reg.add_field("REPLAY_NUM Rollover Status", 1, 0, 1)
+	_reg.add_field("Bad DLLP Status", 1, 0, 1)
+	_reg.add_field("Bad TLP Status", 1, 0, 1)
+	_reg.add_field("Reserved3", 5, 0, 0)
+	_reg.add_field("Receiver Error Status", 1, 0, 1)
+	return _reg
+
+def conf_aer_ucor_err_severity_reg():
+	_reg = reg.Reg("Uncorrectable Error Severity", r.AER_UCOR_ERR_SEVERITY)
+	_reg.add_field("Reserved0", 6, 0, 0)
+	_reg.add_field("TLP Prefix Blocked Error Severity", 1, 0, 1)
+	_reg.add_field("AtomicOp Egress Blocked Severity", 1, 0, 1)
+	_reg.add_field("MC Blocked TLP Severity", 1, 0, 1)
+	_reg.add_field("Uncorrectable Internal Error Severity", 1, 0, 1)
+	_reg.add_field("ACS Violation Severity", 1, 0, 1)
+	_reg.add_field("Unsupported Request Error Severity", 1, 0, 1)
+	_reg.add_field("ECRC Error Severity", 1, 0, 1)
+	_reg.add_field("Malformed TLP Severity", 1, 0, 1)
+	_reg.add_field("Receiver Overflow Severity", 1, 0, 1)
+	_reg.add_field("Unexpected Completion Severity", 1, 0, 1)
+	_reg.add_field("Completer Abort Severity", 1, 0, 1)
+	_reg.add_field("Completion Timeout Severity", 1, 0, 1)
+	_reg.add_field("Flow Control Protocol Error Severity", 1, 0, 1)
+	_reg.add_field("Poisoned TLP Severity", 1, 0, 1)
+	_reg.add_field("Reserved1", 6, 0, 0)
+	_reg.add_field("Surprise Down Error Severity", 1, 0, 1)
+	_reg.add_field("Data Link Protocol Error Severity", 1, 0, 1)
+	_reg.add_field("Reserved2", 3, 0, 0)
+	_reg.add_field("Undefined", 1, 0, 0)
+	return _reg
+
+def conf_aer_ucor_err_mask_reg():
+	_reg = reg.Reg("Uncorrectable Error Mask", r.AER_UCOR_ERR_MASK)
+	_reg.add_field("Reserved0", 6, 0, 0)
+	_reg.add_field("TLP Prefix Blocked Error Mask", 1, 0, 1)
+	_reg.add_field("AtomicOp Egress Blocked Mask", 1, 0, 1)
+	_reg.add_field("MC Blocked TLP Mask", 1, 0, 1)
+	_reg.add_field("Uncorrectable Internal Error Mask", 1, 0, 1)
+	_reg.add_field("ACS Violation Mask", 1, 0, 1)
+	_reg.add_field("Unsupported Request Error Mask", 1, 0, 1)
+	_reg.add_field("ECRC Error Mask", 1, 0, 1)
+	_reg.add_field("Malformed TLP Mask", 1, 0, 1)
+	_reg.add_field("Receiver Overflow Mask", 1, 0, 1)
+	_reg.add_field("Unexpected Completion Mask", 1, 0, 1)
+	_reg.add_field("Completer Abort Mask", 1, 0, 1)
+	_reg.add_field("Completion Timeout Mask", 1, 0, 1)
+	_reg.add_field("Flow Control Protocol Error Mask", 1, 0, 1)
+	_reg.add_field("Poisoned TLP Mask", 1, 0, 1)
+	_reg.add_field("Reserved1", 6, 0, 0)
+	_reg.add_field("Surprise Down Error Mask", 1, 0, 1)
+	_reg.add_field("Data Link Protocol Error Mask", 1, 0, 1)
+	_reg.add_field("Reserved2", 3, 0, 0)
+	_reg.add_field("Undefined", 1, 0, 0)
+	return _reg
+
+def conf_aer_ucor_err_status_reg():
+	_reg = reg.Reg("Uncorrectable Error Status", r.AER_UCOR_ERR_STATUS)
+	_reg.add_field("Reserved0", 6, 0, 0)
+	_reg.add_field("TLP Prefix Blocked Error Status", 1, 0, 1)
+	_reg.add_field("AtomicOp Egress Blocked Status", 1, 0, 1)
+	_reg.add_field("MC Blocked TLP Status", 1, 0, 1)
+	_reg.add_field("Uncorrectable Internal Error Status", 1, 0, 1)
+	_reg.add_field("ACS Violation Status", 1, 0, 1)
+	_reg.add_field("Unsupported Request Error Status", 1, 0, 1)
+	_reg.add_field("ECRC Error Status", 1, 0, 1)
+	_reg.add_field("Malformed TLP Status", 1, 0, 1)
+	_reg.add_field("Receiver Overflow Status", 1, 0, 1)
+	_reg.add_field("Unexpected Completion Status", 1, 0, 1)
+	_reg.add_field("Completer Abort Status", 1, 0, 1)
+	_reg.add_field("Completion Timeout Status", 1, 0, 1)
+	_reg.add_field("Flow Control Protocol Error Status", 1, 0, 1)
+	_reg.add_field("Poisoned TLP Status", 1, 0, 1)
+	_reg.add_field("Reserved1", 6, 0, 0)
+	_reg.add_field("Surprise Down Error Status", 1, 0, 1)
+	_reg.add_field("Data Link Protocol Error Status", 1, 0, 1)
+	_reg.add_field("Reserved2", 3, 0, 0)
+	_reg.add_field("Undefined", 1, 0, 0)
+	return _reg
+
+def conf_aer_cap_reg():
+	_reg = reg.Reg("Advanced Error Reporting Capability", r.AER_CAP)
+	_reg.add_field("Next Capability Offset", 12, 0, 0)
+	_reg.add_field("Capability Version", 4, 0, 0)
+	_reg.add_field("PCI Express Extended Capability ID", 16, 0, 0)
 	return _reg
 
 def read_reg(id: str, reg: str, _32bit = 0) -> int:
