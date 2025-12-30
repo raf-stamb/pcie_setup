@@ -44,6 +44,7 @@ class Reg:
 			f = self.fields[f_name]
 			if f.id == id:
 				return f
+		return None
 
 	def get_field_name_by_id(self, id: int) -> str:
 		for f_name in self.fields.keys():

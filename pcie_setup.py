@@ -428,6 +428,7 @@ def wait_field_select(id, reg):
 			if field == None:
 				print("Non existing field index: %d" % field_id)
 				input("Enter to proceed")
+				continue
 			if field.is_rw == 0:
 				continue
 			return field_id
